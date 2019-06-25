@@ -22,8 +22,22 @@
     - `sudo apt-get install python-gtk2` (glib)
     - 
 7. connect to the local wifi: run `sudo raspi-config`, go to *Network Options* and follow instructions.
-8. disconnect the ethernet and ssh over wifi to the pi (new ip address)
+8. disconnect the ethernet and ssh over wifi to the pi (new ip address). To get all ip addresses of connected network devices, use either
+    - the userinterface of your router. Visit the local ip address of your network with a browser, usually it is `192.168.1.1`. Usually there you'll find an option to show all connected network devices and it's ip's. 
+    - or use `nmap` in a shell:
+        ```sh
+        nmap -sn 192.168.1.1-254/24 | egrep "scan report" | awk '{print $6 " -> " $5}'
+        ```
+        (you may need to install it with `sudo apt-get install nmap`)
+
 
 9. Connect the pi with thymio over a micro-usb cable
-10. list connected devices on raspberry pi with `lsusb` in the ssh-console
-    - Thymio is from `Swiss Federal Insitute of Technology`
+10. list connected devices on raspberry pi with `lsusb` in the ssh-console and check if the thymio is listed
+    - Look for `Swiss Federal Insitute of Technology` (yes, there is a typo...)
+
+The Setup is done, now we can start to code
+
+## Setup development environment
+
+[VS Code Insiders](https://code.visualstudio.com/insiders/) provides an easy way to develop and even debug directly on the raspberry pi. Download and install vs code locally on your machine. Open it and install the following extension:
+- [Remote - SSH (Nightly)](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh-nightly)
