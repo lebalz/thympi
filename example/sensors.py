@@ -4,10 +4,15 @@ import threading
 import dbus
 import dbus.mainloop.glib
 import sys
+import os
 
 
 class ThymioController(object):
     def __init__(self, filename):
+        # initialize asebamedulla in background and wait 0.3s to let
+        # asebamedulla startup (attention, bad habit to wait...)
+        os.system("(asebamedulla ser:name=Thymio-II &) && sleep 0.3")
+        
         # init the main loop
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
@@ -31,6 +36,10 @@ class ThymioController(object):
         # initialize some variables which can be used to set thymio states
         self.ledState = [1, 2, 4, 8, 16, 24, 32, 2]
         self.counter = 0
+
+    def __del__(self):
+        # delete on destruction
+        os.system("pkill -n asebamedulla")
 
     def run(self):
         # run event loop all 20ms
