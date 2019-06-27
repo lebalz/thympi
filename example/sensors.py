@@ -10,7 +10,7 @@ import os
 class ThymioController(object):
     def __init__(self, filename):
         # initialize asebamedulla in background and wait 0.3s to let
-        # asebamedulla startup (attention, bad habit to wait...)
+        # asebamedulla startup (!!bad habit to wait...)
         os.system("(asebamedulla ser:name=Thymio-II &) && sleep 0.3")
         
         # init the main loop
@@ -33,14 +33,19 @@ class ThymioController(object):
             error_handler=self.dbusError
         )
 
-        # initialize some variables which can be used to set thymio states
+        # initialize some variables which can be used in the main loop
+        # to set thymio states
         self.ledState = [1, 2, 4, 8, 16, 24, 32, 2]
         self.counter = 0
 
     def __del__(self):
-        # delete on destruction
-        os.system("pkill -n asebamedulla")
+        # clean up on destruction
+        stopAsebamedulla()
 
+    def stopAsebamedulla():
+        # stop the asebamedulla process
+        # !!dbus connection will fail after this call
+        os.system("pkill -n asebamedulla")
     def run(self):
         # run event loop all 20ms
         threading.Timer(0.02, self.mainLoop).start()
@@ -67,7 +72,7 @@ class ThymioController(object):
 
         prox_horizontal = self.asebaNetwork.GetVariable('thymio-II', 'prox.horizontal')
         ground_ambiant = self.asebaNetwork.GetVariable('thymio-II', 'prox.ground.ambiant')
-        ground_reflexted = self.asebaNetwork.GetVariable('thymio-II', 'prox.ground.reflected')
+        ground_reflected = self.asebaNetwork.GetVariable('thymio-II', 'prox.ground.reflected')
         ground_delta = self.asebaNetwork.GetVariable('thymio-II', 'prox.ground.delta')
 
         # print the readed sensor values
@@ -87,10 +92,10 @@ class ThymioController(object):
                 *button_c,
                 *prox_horizontal,
                 ground_ambiant[0],
-                ground_reflexted[0],
+                ground_reflected[0],
                 ground_delta[0],
                 ground_ambiant[1],
-                ground_reflexted[1],
+                ground_reflected[1],
                 ground_delta[1]
             )
         )
@@ -159,9 +164,10 @@ class ThymioController(object):
         #     [(self.counter * 10) % 3200, 1/60.0]
         # )
 
-        # shift the ledState array:
+        # shift the ledState array
         # [1, 2, 4, 8, 16, 24, 32, 2] becomes [2, 1, 2, 4, 8, 16, 24, 32]
         self.ledState.append(self.ledState.pop(0))
+        # increase the counter
         self.counter += 1
         # reschedule mainLoop
         self.run()
