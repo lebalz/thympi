@@ -5,9 +5,14 @@
 </p>
 
 - [Setup Raspberry Pi](#setup-raspberry-pi)
-    - [Setup development environment](#setup-development-environment)
-    - [Run python scripts](#run-python-scripts)
-        - [Talk with thymio](#talk-with-thymio)
+- [Setup development environment](#setup-development-environment)
+- [Asebamedulla](#asebamedulla)
+    - [Talk with thymio](#talk-with-thymio)
+    - [API-Docs](docs/API.md)
+        - [Sensors](docs/API.md#sensors)
+        - [Commands to control actuators](docs/API.md#commands-to-control-actuators)
+- [Run python scripts](#run-python-scripts)
+- [Example](#example)
 
 # Setup Raspberry Pi
 
@@ -48,7 +53,7 @@
 
 The Setup is done, now we can start to code
 
-## Setup development environment
+# Setup development environment
 
 [VS Code Insiders](https://code.visualstudio.com/insiders/) provides an easy way to develop and even debug directly on the raspberry pi. Download and install vs code locally on your machine. Open it and install the following extension locally:
 - [Remote - SSH (Nightly)](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh-nightly)
@@ -61,7 +66,7 @@ Then connect over the `Remote-SSH`-Panel to your raspberry pi. The easyiest way 
 
 Additionally, when you add your ssh pubkey to `~/.ssh/authorized_keys`, you will not be prompted for password when connecting.
 
-### Run python scripts
+## Asebamedulla
 
 Asebamedulla provides dbus bindings which can be accessed by any programming language. To get ready to talk to asebamedulla, we must first start it: `asebamedulla ser:name=Thymio-II`. To ensure that asebamedulla is running, we can call the above `shell` command over python with an os call:
 
@@ -78,7 +83,7 @@ This will startup a background process, bound to the current shell (is killed wh
 - stop asebamedulla, run `pkill -n asebamedulla`.
 
 
-#### Talk with thymio
+### Talk with thymio
 
 With python we can easily use the DBUS over the `dbus` package:
 
@@ -101,12 +106,12 @@ asebaNetwork = dbus.Interface(
 
 # load the file which is run on the thymio
 asebaNetwork.LoadScripts(
-    'path/to/sensors.aesl',
+    'path/to/thympi.aesl',
     reply_handler=self.dbusReply,
     error_handler=self.dbusError
 )
 ```
-In the code above an `.aesl` file is sent over the dbus to the thymio. This file must define the translation of dbus events sent from python to the action performed on the thymio. The `example/sensors.aesl` defines all standard events to control thymio's actuators.
+In the code above an `.aesl` file is sent over the dbus to the thymio. This file must define the translation of dbus events sent from python to the action performed on the thymio. The `example/thympi.aesl` defines all standard events to control thymio's actuators.
 
 See the [API Docs](docs/API.md) for available commands to access thymio's actuators and sensors.
 
@@ -132,17 +137,20 @@ self.asebaNetwork.SendEventName(
 
 **Note** all values received and passed to dbus are arrays - even for single values!
 
-### Run python scripts
+## Run python scripts
 
 You can run your python 3 scripts over the terminal:
 ```sh
-python3 ./example/sensors.py ./example/sensors.aesl
+python3 ./example/thympi.py ./example/thympi.aesl
 ```
 
-Or you can install the [Python]() plugin on the remote vs code, and then run and debug (visual breakpoints and state inspection are built in) the python scripts with `F5`. You have to configure launch file to run the local python file. To pass in the `.aesl` file as an argument, add `"args": ["${fileDirname}/sensors.aesl"]`. This expects that the `.aesl` file (`sensors.aesl`) is at the same location as the running python file. (You can change the location of `sensors.aesl` to e.g. the root folder and specify then `"args": ["${workspaceFolder}}/sensors.aesl"]`).
+Or you can install the [Python]() plugin on the remote vs code, and then run and debug (visual breakpoints and state inspection are built in) the python scripts with `F5`. You have to configure launch file to run the local python file. To pass in the `.aesl` file as an argument, add `"args": ["${fileDirname}/thympi.aesl"]`. This expects that the `.aesl` file (`thympi.aesl`) is at the same location as the running python file. (You can change the location of `thympi.aesl` to e.g. the root folder and specify then `"args": ["${workspaceFolder}}/thympi.aesl"]`).
 
 
 <p align="center">
   <a href="#"><img style="width:100%; height: auto; max-width: 960px;" src="./docs/images/python-config.gif"></a>
 </p>
 
+# Example
+
+The example uses a class `ThymioController` which initializes asebamedulla, configures the dbus and as the main part contains a method `main_loop` which is called all `20ms`. The example prints out all readed sensor values and sends some data to thymios actuators. The [example folder](./example) contains two files, [thympi.aesl](./example/thympi.aesl) configures thymio to react on dbus events corrctly (for actuator control), [thympi.py](./example/thympi.py) is the python3 script to run the demo.
