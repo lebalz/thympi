@@ -5,6 +5,8 @@
 </p>
 
 - [Setup Raspberry Pi](#setup-raspberry-pi)
+    - [setup with preconfigured image](#setup-with-preconfigured-image)
+    - [setup a fresh image](#setup-a-fresh-image)
 - [Setup development environment](#setup-development-environment)
 - [Asebamedulla](#asebamedulla)
     - [Talk with thymio](#talk-with-thymio)
@@ -16,29 +18,12 @@
 
 # Setup Raspberry Pi
 
-1. Download [raspbian .zip](https://www.raspberrypi.org/downloads/raspbian/) and follow the instructions to flash to `.img` to an sd card
-2. initial setup over screen
-    - setup ssh: `sudo systemctl enable ssh && sudo systemctl start ssh`
-3. Copy the aseba: Copy `aseba_1.5.5_armhf.deb` to `/home/pi` (if there is a newer build,download it from [here](http://wiki.thymio.org/en:linuxinstall))
-4. put the sd card in the raspberry pi, boot it up. Make sure your raspberry is connected via ethernet to your local network.
-5. ssh to your pi : `ssh pi@<local-ip-address-of-pi>`, the default raspbian password is `raspberry`
-6. install aseba and it's dependencies:
-    - `sudo dpkg -i aseba_1.5.5_armhf.deb`
-    - `sudo apt-get update && sudo apt-get -f install`
-    ```sh
-    sudo apt-get update
-    sudo apt-get upgrade
-    sudo apt-get install --no-install-recommends xserver-xorg
-    sudo apt-get install --no-install-recommends xinit
-    sudo apt-get install raspberrypi-ui-mods
-    sudo apt-get install --no-install-recommends raspberrypi-ui-mods lxterminal gvfs
-    sudo apt-get install rc-gui
-    ```
-    - `sudo apt-get install python-dbus` (dbus)
-    - `sudo apt-get install python-gtk2` (glib)
-    - 
-7. connect to the local wifi: run `sudo raspi-config`, go to *Network Options* and follow instructions.
-8. disconnect the ethernet and ssh over wifi to the pi (new ip address). To get all ip addresses of connected network devices, use either
+1. Flash a raspian image to the raspberry pi:
+    - [setup with preconfigured image](#setup-with-preconfigured-image) or
+    - [setup a fresh image](#setup-a-fresh-image)
+2. generate a ssh key on the raspberry pi with `ssh-keygen`. Then paste the public ssh key of your computer (`id_rsa.pub`) to the file `~/.ssh/authorized_keys` on the pi. (The file `.ssh/authorized_keys`) must probably be created first.
+3. connect to the local wifi: run `sudo raspi-config`, go to *Network Options* and follow instructions.
+4. disconnect the ethernet and ssh over wifi to the pi (new ip address). To get all ip addresses of connected network devices, use either
     - the userinterface of your router. Visit the local ip address of your network with a browser, usually it is `192.168.1.1`. Usually there you'll find an option to show all connected network devices and it's ip's. 
     - or use `nmap` in a shell:
         ```sh
@@ -47,15 +32,36 @@
         (you may need to install it with `sudo apt-get install nmap`)
 
 
-9. Connect the pi with thymio over a micro-usb cable
-10. list connected devices on raspberry pi with `lsusb` in the ssh-console and check if the thymio is listed
+5. Connect the pi with thymio over a micro-usb cable
+6. list connected devices on raspberry pi with `lsusb` in the ssh-console and check if the thymio is listed
     - Look for `Swiss Federal Insitute of Technology` (yes, there is a typo...)
+7. (optional) if you want to create an image of your setup, follow [these](https://medium.com/platformer-blog/creating-a-custom-raspbian-os-image-for-production-3fcb43ff3630) instructions.
 
 The Setup is done, now we can start to code
 
+## setup with preconfigured image
+Download the [image here](https://1drv.ms/u/s!AkYS73pga-KtnutC8oYK9gEuWlbILw?e=MMb9el). It is a raspbian stretch with desktop (released in summer 2017), with installed Python 3.5.3.
+Follow the [installation guide](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) to flash the downloaded image to an sd card.
+
+## setup a fresh image
+1. Download [raspbian desktop](https://www.raspberrypi.org/downloads/raspbian/) and follow the instructions to flash the `.img` to an sd card
+2. initial setup over screen
+    - setup ssh: `sudo systemctl enable ssh && sudo systemctl start ssh`
+3. Copy the aseba: Copy `aseba_1.5.5_armhf.deb` to `/home/pi` (if there is a newer build,download it from [here](http://wiki.thymio.org/en:linuxinstall))
+4. put the sd card in the raspberry pi, boot it up. Make sure your raspberry is connected via ethernet to your local network.
+5. ssh to your pi : `ssh pi@<local-ip-address-of-pi>`, the default raspbian password is `raspberry`
+7. install aseba and it's dependencies:
+    - `sudo dpkg -i aseba_1.5.5_armhf.deb`
+    - `sudo apt-get update && sudo apt-get -f install`
+    - `sudo apt-get install python-dbus` (dbus)
+    - `sudo apt-get install python-gtk2` (glib)
+
+
 # Setup development environment
 
-[VS Code Insiders](https://code.visualstudio.com/insiders/) provides an easy way to develop and even debug directly on the raspberry pi. Download and install vs code locally on your machine. Open it and install the following extension locally:
+[VS Code Insiders](https://code.visualstudio.com/insiders/) provides an easy way to develop and even debug directly on the raspberry pi. It allows you to drag and drop files from your local computer to the raspberry (without `scp`) and use all known advantages of a linux os (e.g. no need to have python installed locally).
+
+Download and install vs code locally on your machine. Open it and install the following extension locally:
 - [Remote - SSH (Nightly)](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh-nightly)
 
 Then connect over the `Remote-SSH`-Panel to your raspberry pi. The easyiest way is to configure a new connection file - once created, you can open remote vs code directly.
@@ -65,6 +71,7 @@ Then connect over the `Remote-SSH`-Panel to your raspberry pi. The easyiest way 
 </p>
 
 Additionally, when you add your ssh pubkey to `~/.ssh/authorized_keys`, you will not be prompted for password when connecting.
+
 
 ## Asebamedulla
 
