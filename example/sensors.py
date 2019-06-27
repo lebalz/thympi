@@ -11,12 +11,12 @@ class ThymioController(object):
     def __init__(self, filename):
         # initialize asebamedulla in background and wait 0.3s to let
         # asebamedulla startup (!!bad habit to wait...)
-        os.system("(asebamedulla ser:name=Thymio-II &) && sleep 0.5")
+        os.system("(asebamedulla ser:name=Thymio-II &) && sleep 0.3")
         
-        # init the main loop
+        # init the dbus main loop
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-        # get stub of the Aseba network
+        # get stub of the aseba network
         bus = dbus.SessionBus()
         asebaNetworkObject = bus.get_object('ch.epfl.mobots.Aseba', '/')
 
@@ -71,6 +71,7 @@ class ThymioController(object):
         ground_ambiant = self.asebaNetwork.GetVariable('thymio-II', 'prox.ground.ambiant')
         ground_reflected = self.asebaNetwork.GetVariable('thymio-II', 'prox.ground.reflected')
         ground_delta = self.asebaNetwork.GetVariable('thymio-II', 'prox.ground.delta')
+        mic_intensity = self.asebaNetwork.GetVariable('thymio-II', 'mic.intensity')
 
         # print the readed sensor values
         print(
@@ -78,7 +79,8 @@ class ThymioController(object):
             "Temp: {3:3d} "
             "Button: f{4:1d}, r{5:1d}, b{6:1d}, l:{7:1d}, c:{8:1d} "
             "Horizontal: {9:4d}, {10:4d}, {11:4d}, {12:4d}, {13:4d}, {14:4d}, {15:4d}, "
-            "Ground: [{16:3d}, {17:3d}, {18:3d}] | [{19:3d}, {20:3d}, {21:3d}] "
+            "Ground: [{16:3d}, {17:3d}, {18:3d}] | [{19:3d}, {20:3d}, {21:3d}], "
+            "Mic: {22:3d}"
             "".format(
                 *acc,
                 *temperature,
@@ -93,11 +95,13 @@ class ThymioController(object):
                 ground_delta[0],
                 ground_ambiant[1],
                 ground_reflected[1],
-                ground_delta[1]
+                ground_delta[1],
+                mic_intensity[0]
             )
         )
 
         # set programmatically some states on the thymio
+        # optional you can specify reply- and error handler
         self.asebaNetwork.SendEventName(
             'motor.target',
             [0*acc[0], 0*acc[1]],

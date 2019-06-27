@@ -45,7 +45,93 @@ The Setup is done, now we can start to code
 Then connect over the `Remote-SSH`-Panel to your raspberry pi. The easyiest way is to configure a new connection file - once created, you can open remote vs code directly.
 
 <p align="center">
-  <a href="#"><img width="450" src="./docs/images/remote-config.gif"></a>
+  <a href="#"><img style="width:100%; height: auto; max-width: 960px;" src="./docs/images/remote-config.gif"></a>
 </p>
 
 Additionally, when you add your ssh pubkey to `~/.ssh/authorized_keys`, you will not be prompted for password when connecting.
+
+### Run python scripts
+
+Asebamedulla provides dbus bindings which can be accessed by any programming language. To get ready to talk to asebamedulla, we must first start it: `asebamedulla ser:name=Thymio-II`. To ensure that asebamedulla is running, we can call the above `shell` command over python with an os call:
+
+```py
+import os
+# initialize asebamedulla in background and wait 0.3s to let
+# asebamedulla startup
+os.system("(asebamedulla ser:name=Thymio-II &) && sleep 0.3")        
+```
+
+This will startup a background process, bound to the current shell (is killed when the remote session gets closed). Note that there is a fix timeout of `0.3s` for asebamedulla to startup. This is normally enough time - you may have to increase the timeout for older raspberry pi's or slower sd cards.
+
+- show running asebamedulla daemons, run `ps afux | grep asebamedulla`
+- stop asebamedulla, run `pkill -n asebamedulla`.
+
+
+#### Talk with thymio
+
+With python we can easily use the DBUS over the `dbus` package:
+
+```py
+import dbus
+import dbus.mainloop.glib
+
+# init the dbus main loop
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
+# get stub of the aseba network
+bus = dbus.SessionBus()
+asebaNetworkObject = bus.get_object('ch.epfl.mobots.Aseba', '/')
+
+# prepare interface
+asebaNetwork = dbus.Interface(
+    asebaNetworkObject,
+    dbus_interface='ch.epfl.mobots.AsebaNetwork'
+)
+
+# load the file which is run on the thymio
+asebaNetwork.LoadScripts(
+    'path/to/sensors.aesl',
+    reply_handler=self.dbusReply,
+    error_handler=self.dbusError
+)
+```
+In the code above an `.aesl` file is sent over the dbus to the thymio. This file must define the translation of dbus events sent from python to the action performed on the thymio. The `example/sensors.aesl` defines all standard events to control thymio's actuators.
+
+See the [API Docs](docs/API.md) for available commands to access thymio's actuators and sensors.
+
+Example to read the accelerator sensor values:
+
+```py
+acc = asebaNetwork.GetVariable('thymio-II', 'acc')
+x = acc[0]
+y = acc[1]
+z = acc[2]
+```
+
+Example to set motor speed:
+
+```py
+left_wheel = 20
+right_wheel = 200
+self.asebaNetwork.SendEventName(
+    'motor.target',
+    [left_wheel, right_wheel]
+)
+```
+
+**Note** all values received and passed to dbus are arrays - even for single values!
+
+### Run python scripts
+
+You can run your python 3 scripts over the terminal:
+```sh
+python3 ./example/sensors.py ./example/sensors.aesl
+```
+
+Or you can install the [Python]() plugin on the remote vs code, and then run and debug (visual breakpoints and state inspection are built in) the python scripts with `F5`. You have to configure launch file to run the local python file. To pass in the `.aesl` file as an argument, add `"args": ["${fileDirname}/sensors.aesl"]`. This expects that the `.aesl` file (`sensors.aesl`) is at the same location as the running python file. (You can change the location of `sensors.aesl` to e.g. the root folder and specify then `"args": ["${workspaceFolder}}/sensors.aesl"]`).
+
+
+<p align="center">
+  <a href="#"><img style="width:100%; height: auto; max-width: 960px;" src="./docs/images/python-config.gif"></a>
+</p>
+
