@@ -1,3 +1,14 @@
+# Thympi
+
+<p align="center">
+  <a href="#"><img style="width:100%; height: auto; max-width: 960px;" src="./docs/images/thympi.gif"></a>
+</p>
+
+- [Setup Raspberry Pi](#setup-raspberry-pi)
+    - [Setup development environment](#setup-development-environment)
+    - [Run python scripts](#run-python-scripts)
+        - [Talk with thymio](#talk-with-thymio)
+
 # Setup Raspberry Pi
 
 1. Download [raspbian .zip](https://www.raspberrypi.org/downloads/raspbian/) and follow the instructions to flash to `.img` to an sd card

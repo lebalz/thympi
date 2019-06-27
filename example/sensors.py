@@ -104,7 +104,7 @@ class ThymioController(object):
         # optional you can specify reply- and error handler
         self.asebaNetwork.SendEventName(
             'motor.target',
-            [0*acc[0], 0*acc[1]],
+            [0*acc[0], 16*acc[1]],
             reply_handler=self.dbusReply,
             error_handler=self.dbusError
         )
