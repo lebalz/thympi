@@ -59,10 +59,10 @@ Follow the [installation guide](https://www.raspberrypi.org/documentation/instal
 
 # Setup development environment
 
-[VS Code Insiders](https://code.visualstudio.com/insiders/) provides an easy way to develop and even debug directly on the raspberry pi. It allows you to drag and drop files from your local computer to the raspberry (without `scp`) and use all known advantages of a linux os (e.g. no need to have python installed locally).
+[VS Code](https://code.visualstudio.com/) provides an easy way to develop and even debug directly on the raspberry pi. It allows you to drag and drop files from your local computer to the raspberry (without `scp`) and use all amenities of a unix system (e.g. no need to have python installed locally).
 
 Download and install vs code locally on your machine. Open it and install the following extension locally:
-- [Remote - SSH (Nightly)](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh-nightly)
+- [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
 
 Then connect over the `Remote-SSH`-Panel to your raspberry pi. The easyiest way is to configure a new connection file - once created, you can open remote vs code directly.
 
